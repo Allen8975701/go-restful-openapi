@@ -15,6 +15,8 @@
 - type (overrides the Go type String())
 - enum
 - readOnly
+- maxItems
+- minItems
 
 See TestThatExtraTagsAreReadIntoModel for examples.
 
