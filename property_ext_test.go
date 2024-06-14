@@ -20,13 +20,14 @@ func TestThatExtraTagsAreReadIntoModel(t *testing.T) {
 		FakeArray        fakearray `type:"[]string"`
 		IP               net.IP    `type:"string"`
 		Password         string
-		Optional         bool   `optional:"true"`
-		Created          string `readOnly:"true"`
-		NullableField    string `x-nullable:"true"`
-		NotNullableField string `x-nullable:"false"`
-		UUID             string `type:"string" format:"UUID"`
-		XGoName          string `x-go-name:"specgoname"`
-		ByteArray        []byte `format:"binary"`
+		Optional         bool     `optional:"true"`
+		Created          string   `readOnly:"true"`
+		NullableField    string   `x-nullable:"true"`
+		NotNullableField string   `x-nullable:"false"`
+		UUID             string   `type:"string" format:"UUID"`
+		XGoName          string   `x-go-name:"specgoname"`
+		ByteArray        []byte   `format:"binary"`
+		ArraySize        []string `maxItems:"5" minItems:"1"`
 	}
 	d := definitionsFromStruct(Anything{})
 	props, _ := d["restfulspec.Anything"]
@@ -105,6 +106,16 @@ func TestThatExtraTagsAreReadIntoModel(t *testing.T) {
 	}
 	p13, _ := props.Properties["XGoName"]
 	if got, want := p13.Extensions["x-go-name"], "specgoname"; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+
+	p14, _ := props.Properties["ArraySize"]
+	maxItems := int64(5)
+	minItems := int64(1)
+	if got, want := *p14.MinItems, minItems; got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+	if got, want := *p14.MaxItems, maxItems; got != want {
 		t.Errorf("got %v want %v", got, want)
 	}
 }

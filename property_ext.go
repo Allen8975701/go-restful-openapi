@@ -81,6 +81,24 @@ func setMinimum(prop *spec.Schema, field reflect.StructField) {
 	}
 }
 
+func setMinItems(prop *spec.Schema, field reflect.StructField) {
+	if tag := field.Tag.Get("minItems"); tag != "" {
+		value, err := strconv.ParseInt(tag, 10, 64)
+		if err == nil {
+			prop.MinItems = &value
+		}
+	}
+}
+
+func setMaxItems(prop *spec.Schema, field reflect.StructField) {
+	if tag := field.Tag.Get("maxItems"); tag != "" {
+		value, err := strconv.ParseInt(tag, 10, 64)
+		if err == nil {
+			prop.MaxItems = &value
+		}
+	}
+}
+
 func setType(prop *spec.Schema, field reflect.StructField) {
 	if tag := field.Tag.Get("type"); tag != "" {
 		// Check if the first two characters of the type tag are
@@ -135,4 +153,6 @@ func setPropertyMetadata(prop *spec.Schema, field reflect.StructField) {
 	setReadOnly(prop, field)
 	setIsNullableValue(prop, field)
 	setGoNameValue(prop, field)
+	setMinItems(prop, field)
+	setMaxItems(prop, field)
 }
