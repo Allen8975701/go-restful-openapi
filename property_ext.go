@@ -141,6 +141,12 @@ func setReadOnly(prop *spec.Schema, field reflect.StructField) {
 	}
 }
 
+func setExample(prop *spec.Schema, field reflect.StructField) {
+	if exampleTag := field.Tag.Get("example"); exampleTag != "" {
+		prop.Example = exampleTag
+	}
+}
+
 func setPropertyMetadata(prop *spec.Schema, field reflect.StructField) {
 	setDescription(prop, field)
 	setDefaultValue(prop, field)
@@ -155,4 +161,5 @@ func setPropertyMetadata(prop *spec.Schema, field reflect.StructField) {
 	setGoNameValue(prop, field)
 	setMinItems(prop, field)
 	setMaxItems(prop, field)
+	setExample(prop, field)
 }
