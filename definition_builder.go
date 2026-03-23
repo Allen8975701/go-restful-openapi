@@ -205,18 +205,27 @@ func (b definitionBuilder) buildProperty(field reflect.StructField, model *spec.
 	}
 
 	// not a primitive
+	// Since the `prop` variable in each of the cases below is a new reference, we need to re-set the `Example` field.
 	switch {
 	case fieldKind == reflect.Struct:
 		jsonName, prop := b.buildStructTypeProperty(field, jsonName, model)
+		setExample(&prop, field)
+
 		return jsonName, modelDescription, prop
 	case b.isSliceOrArrayType(fieldKind):
 		jsonName, prop := b.buildArrayTypeProperty(field, jsonName, modelName)
+		setExample(&prop, field)
+
 		return jsonName, modelDescription, prop
 	case fieldKind == reflect.Ptr:
 		jsonName, prop := b.buildPointerTypeProperty(field, jsonName, modelName)
+		setExample(&prop, field)
+
 		return jsonName, modelDescription, prop
 	case fieldKind == reflect.Map:
 		jsonName, prop := b.buildMapTypeProperty(field, jsonName, modelName)
+		setExample(&prop, field)
+
 		return jsonName, modelDescription, prop
 	}
 
@@ -229,6 +238,7 @@ func (b definitionBuilder) buildProperty(field reflect.StructField, model *spec.
 		prop.Ref = spec.MustCreateRef("#/definitions/" + nestedTypeName)
 		b.addModel(fieldType, nestedTypeName)
 	}
+
 	return jsonName, modelDescription, prop
 }
 
@@ -332,6 +342,13 @@ func (b definitionBuilder) buildArrayTypeProperty(field reflect.StructField, jso
 	}
 	isPrimitive := b.isPrimitiveType(itemType.Name(), itemType.Kind())
 	elemTypeName := b.getElementTypeName(modelName, jsonName, itemType)
+
+	// If enum exists, move the enum definition from the `type: "array"` definition to `items`.
+	if prop.Enum != nil {
+		prop.Items.Schema.Enum = prop.Enum
+		prop.Enum = nil
+	}
+
 	if isPrimitive {
 		mapped := b.jsonSchemaType(elemTypeName, itemType.Kind())
 		itemSchema.Type = []string{mapped}
